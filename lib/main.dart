@@ -9,7 +9,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Flutter SQLite MVP Architecture",
+      title: "Flutter SQflite MVP Architecture",
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light(),
       home: Learning(),
