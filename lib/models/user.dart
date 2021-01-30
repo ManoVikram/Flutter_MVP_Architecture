@@ -21,5 +21,6 @@ class User {
     var map = Map<String, dynamic>();
     map["username"] = _username;
     map["password"] = _password;
+    return map;
   }
 }

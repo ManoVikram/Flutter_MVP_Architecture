@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_sqlite_mvp/models/user.dart';
 
 import 'package:flutter_sqlite_mvp/screens/loginPresenter.dart';
+import 'package:flutter_sqlite_mvp/models/user.dart';
+import 'package:flutter_sqlite_mvp/data/dbHelper.dart';
+
+import 'homeScreen.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const String routeName = "/login";
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen>
     implements LoginScreenContract {
-  BuildContext contxt;
-  bool _isLoading;
+  BuildContext _contxt;
+  bool _isLoading = false;
 
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -25,18 +30,105 @@ class _LoginScreenState extends State<LoginScreen>
     _presenter = LoginScreenPresenter(this);
   }
 
-  @override
-  void onLoginError(String error) {
-    // TODO: implement onLoginError
+  void _submit() {
+    final form = formKey.currentState;
+
+    if (form.validate()) {
+      setState(() {
+        _isLoading = true;
+        form.save();
+        _presenter.doLogin(_username, _password);
+      });
+    }
+  }
+
+  void _showSnackBar(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+      ),
+    );
   }
 
   @override
-  void onLoginSuccess(User user) {
-    // TODO: implement onLoginSuccess
+  void onLoginError(String error) {
+    _showSnackBar(error);
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Future<void> onLoginSuccess(User user) async {
+    _showSnackBar(user.toString());
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    var db = DBHelper();
+    await db.saveUser(user);
+
+    Navigator.pushReplacementNamed(context, "/home");
+    // HomeScreen();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    _contxt = context;
+    Widget loginButton = RaisedButton(
+      onPressed: _submit,
+      child: Text("Login"),
+      color: Colors.green,
+    );
+
+    Widget loginForm = Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "SQflite App Login",
+          textScaleFactor: 2.0,
+        ),
+        Form(
+          key: formKey,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  onSaved: (value) => _username = value,
+                  decoration: InputDecoration(
+                    labelText: "Username",
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  onSaved: (value) => _password = value,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        loginButton,
+      ],
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        key: scaffoldKey,
+        title: Text("Login"),
+      ),
+      body: Container(
+        child: Center(
+          child: loginForm,
+        ),
+      ),
+    );
   }
 }
