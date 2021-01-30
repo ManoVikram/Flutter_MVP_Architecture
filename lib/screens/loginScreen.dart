@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _showSnackBar(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(_contxt).showSnackBar(
       SnackBar(
         content: Text(text),
       ),
@@ -70,8 +70,8 @@ class _LoginScreenState extends State<LoginScreen>
     var db = DBHelper();
     await db.saveUser(user);
 
-    Navigator.pushReplacementNamed(context, "/home");
-    // HomeScreen();
+    Navigator.pop(context);
+    Navigator.pushNamed(context, HomeScreen.routeName);
   }
 
   @override
